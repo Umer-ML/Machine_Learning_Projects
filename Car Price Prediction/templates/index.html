@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Price Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Car Price Prediction</h1>
+
+        <form action="/predict" method="post">
+
+            <!-- Company Dropdown -->
+            <label for="company">Select Company:</label>
+            <select id="company" name="company" onchange="load_car_models('company','car_models')">
+                {% for company in companies %}
+                    <option value="{{ company }}">{{ company }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Car Model Dropdown -->
+            <label for="car_models">Select Car Model:</label>
+            <select id="car_models" name="car_models">
+                <option value="">Select Model</option>
+            </select>
+
+            <!-- Year Dropdown -->
+            <label for="year">Select Year:</label>
+            <select id="year" name="year">
+                {% for y in years %}
+                    <option value="{{ y }}">{{ y }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Fuel Type Dropdown -->
+            <label for="fuel_type">Select Fuel Type:</label>
+            <select id="fuel_type" name="fuel_type">
+                {% for f in fuel_types %}
+                    <option value="{{ f }}">{{ f }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Kms Driven -->
+            <label for="kilo_driven">KMs Driven:</label>
+            <input type="text" id="kilo_driven" name="kilo_driven" placeholder="Enter KMs Driven">
+
+            <button type="submit">Predict Price</button>
+        </form>
+
+        <div id="prediction"></div>
+    </div>
+
+    <!-- ✅ Proper Jinja-safe data injection -->
+    <script>
+        const companies = JSON.parse('{{ companies|tojson|safe }}');
+        const car_models = JSON.parse('{{ car_models|tojson|safe }}');
+
+        function load_car_models(company_id, car_model_id) {
+            const company = document.getElementById(company_id);
+            const car_model = document.getElementById(car_model_id);
+
+            const selectedCompany = company.value;
+            car_model.innerHTML = '';
+
+            // Filter models matching selected company
+            const filteredModels = car_models.filter(model => model.toLowerCase().includes(selectedCompany.toLowerCase()));
+
+            // Populate model dropdown
+            filteredModels.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                car_model.appendChild(option);
+            });
+
+            // If no match found
+            if (filteredModels.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = 'No models found';
+                car_model.appendChild(opt);
+            }
+        }
+    </script>
+</body>
+</html>
